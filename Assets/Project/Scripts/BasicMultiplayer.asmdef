@@ -1,0 +1,19 @@
+{
+    "name": "BasicMultiplayer",
+    "rootNamespace": "BasicMultiplayer",
+    "references": [
+        "Unity.Netcode.Runtime",
+        "Unity.InputSystem",
+        "Unity.Networking.Transport",
+        "Unity.Cinemachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
