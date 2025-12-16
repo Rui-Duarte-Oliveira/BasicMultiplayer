@@ -37,3 +37,9 @@ ExportedObj/
 # Builds
 *.apk
 *.unitypackage
+
+# Visual Studio temp folder
+.vs/
+
+# Modern Solution file
+*.slnx
