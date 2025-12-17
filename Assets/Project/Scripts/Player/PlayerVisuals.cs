@@ -3,15 +3,9 @@ using UnityEngine;
 namespace BasicMultiplayer.Player
 {
     /// <summary>
-    /// Handles visual feedback for the player (particles, effects, etc.)
-    /// 
-    /// ARCHITECTURE DECISION: This script has NO networking code.
-    /// Visual effects run locally on each client because:
-    /// 1. They don't affect gameplay (cosmetic only)
-    /// 2. Reduces network traffic
-    /// 3. Can be customized per-client without sync issues
-    /// 
-    /// Each client renders effects based on local state observations.
+    /// Manages local visual feedback and particle systems. 
+    /// Decoupled from networking logic; effects are triggered based on 
+    /// state changes observed by the controller.
     /// </summary>
     [RequireComponent(typeof(PlayerMotor))]
     public class PlayerVisuals : MonoBehaviour

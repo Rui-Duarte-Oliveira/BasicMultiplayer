@@ -4,16 +4,7 @@ using UnityEngine.Events;
 namespace BasicMultiplayer.Goals
 {
     /// <summary>
-    /// Detects when the ball enters a goal zone.
-    /// 
-    /// NETWORKING DECISION: This script does NOT inherit from NetworkBehaviour.
-    /// Goal detection happens on the SERVER only (via ArenaBall's collision).
-    /// This is just a marker/trigger zone that the server-side ball checks against.
-    /// 
-    /// Why server-side only?
-    /// - Prevents clients from falsely reporting goals
-    /// - Single source of truth for scoring
-    /// - Reduces network traffic (no need to sync trigger events)
+    /// Defines a goal zone for the server-authoritative ball to detect.
     /// </summary>
     [RequireComponent(typeof(Collider))]
     public class GoalZone : MonoBehaviour
@@ -60,7 +51,7 @@ namespace BasicMultiplayer.Goals
 
         private void OnValidate()
         {
-            // Clamp player index to valid range
+            //Clamp player index to valid range
             _ownerPlayerIndex = Mathf.Clamp(_ownerPlayerIndex, 0, 1);
         }
 

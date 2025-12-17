@@ -3,15 +3,9 @@ using UnityEngine;
 namespace BasicMultiplayer.Player
 {
     /// <summary>
-    /// Handles pure physics-based movement for the player cube.
-    /// 
-    /// ARCHITECTURE DECISION: This class contains ZERO networking code.
-    /// By separating movement physics from network synchronization, we achieve:
-    /// 1. Single Responsibility Principle - This class only handles "how to move"
-    /// 2. Testability - Can test movement in isolation without network setup
-    /// 3. Reusability - Could be used for AI-controlled players or local-only modes
-    /// 
-    /// The PlayerNetworkController calls these methods and handles the network sync.
+    /// Handles physics-based movement and dash logic. 
+    /// Driven by the player controller; kept independent of networking for easier 
+    /// local testing and reuse.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerMotor : MonoBehaviour

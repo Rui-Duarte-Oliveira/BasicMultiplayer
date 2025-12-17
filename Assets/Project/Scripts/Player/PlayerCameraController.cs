@@ -5,13 +5,8 @@ using Unity.Cinemachine;
 namespace BasicMultiplayer.Player
 {
     /// <summary>
-    /// Handles camera setup for the local player in a multiplayer context.
-    /// 
-    /// NETWORKING CHALLENGE: In multiplayer, multiple Player objects exist in the scene,
-    /// but the camera should only follow the LOCAL player (the one we control).
-    /// 
-    /// SOLUTION: This script runs on every Player instance, but only the owner (IsOwner)
-    /// registers themselves as the Cinemachine follow target. Non-owners do nothing.
+    /// Configures the camera to follow the local player.
+    /// Ensures that Cinemachine targets only the owned player instance on the local client.
     /// </summary>
     public class PlayerCameraController : NetworkBehaviour
     {

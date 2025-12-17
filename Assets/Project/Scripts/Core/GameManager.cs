@@ -7,18 +7,9 @@ using UnityEngine;
 namespace BasicMultiplayer.Core
 {
     /// <summary>
-    /// Server-authoritative game state manager.
-    /// 
-    /// NETWORKING ARCHITECTURE - STATE MACHINE PATTERN:
-    /// 
-    /// The GameManager controls the flow of the game through discrete states:
-    /// WaitingForPlayers → Countdown → Playing → RoundEnd → (repeat or GameEnd)
-    /// 
-    /// WHY SERVER-ONLY LOGIC:
-    /// - Prevents cheating (clients can't modify score/timer)
-    /// - Single source of truth for game state
-    /// - Clients receive state updates via NetworkVariables
-    /// - Events (goal scored, round end) are broadcast via ClientRpc
+    /// Server-authoritative manager for the game lifecycle.
+    /// Coordinates game states (Waiting, Countdown, Playing, RoundEnd) and synchronizes 
+    /// scoring and timers across all clients via NetworkVariables.
     /// </summary>
     public class GameManager : NetworkBehaviour
     {
@@ -42,12 +33,8 @@ namespace BasicMultiplayer.Core
         [SerializeField] private Transform[] _playerSpawnPoints;
 
         /// <summary>
-        /// Current game state. All clients can read this to update their UI.
-        /// 
-        /// NETWORKING DECISION: NetworkVariable for state ensures:
-        /// - Late joiners see correct state immediately
-        /// - UI can react to state changes via OnValueChanged
-        /// - No need for constant RPCs to sync state
+        /// Synchronized game state. 
+        /// Monitored by clients to handle UI transitions and local gameplay logic.
         /// </summary>
         public NetworkVariable<GameState> CurrentState = new NetworkVariable<GameState>(
             GameState.WaitingForPlayers,
@@ -56,12 +43,8 @@ namespace BasicMultiplayer.Core
         );
 
         /// <summary>
-        /// Scores for each player. Index 0 = Player 1, Index 1 = Player 2.
-        /// 
-        /// NETWORKING DECISION: Using NetworkList for scores because:
-        /// - Variable-length collection that syncs automatically
-        /// - Supports late joiners (they get full list on connect)
-        /// - More efficient than RPCs for persistent state
+        /// Synchronized player scores. Index 0 corresponds to Player 1, Index 1 to Player 2.
+        /// Changes are automatically replicated to all clients for UI updates.
         /// </summary>
         public NetworkList<int> PlayerScores;
 
@@ -392,10 +375,7 @@ namespace BasicMultiplayer.Core
         }
 
         /// <summary>
-        /// NETWORKING DECISION: Use ClientRpc for events because:
-        /// - One-time notifications (not persistent state)
-        /// - Triggers UI/audio/visual feedback
-        /// - Server broadcasts authoritatively
+        /// Broadcasts a game event to all clients to trigger local UI and audio-visual feedback.
         /// </summary>
         [ClientRpc]
         private void OnCountdownTickClientRpc(int value)
@@ -438,11 +418,8 @@ namespace BasicMultiplayer.Core
         }
 
         /// <summary>
-        /// Restarts the game. Can be called via UI button.
-        /// 
-        /// NETWORKING DECISION: Using Rpc with SendTo.Server allows ANY client to request 
-        /// a restart, not just the owner. The server still validates and executes the 
-        /// actual restart logic.
+        /// Requests a game restart from the server. 
+        /// Configured to allow any connected client to trigger a reset regardless of ownership.
         /// </summary>
         [Rpc(SendTo.Server)]
         public void RestartGameRpc()

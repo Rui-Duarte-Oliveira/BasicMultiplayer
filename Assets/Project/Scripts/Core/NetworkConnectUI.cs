@@ -5,11 +5,8 @@ using UnityEngine;
 namespace BasicMultiplayer.Core
 {
     /// <summary>
-    /// Handles the connection UI for starting/joining games.
-    /// 
-    /// NETWORKING DECISION: This script intentionally does NOT inherit from NetworkBehaviour.
-    /// It only needs to call NetworkManager methods, not sync any state. Keeping it as a
-    /// MonoBehaviour reduces complexity and follows the Single Responsibility Principle.
+    /// Controls the initial connection UI. 
+    /// Interfaces with the NetworkManager to initialize Host, Client, or Server sessions.
     /// </summary>
     public class NetworkConnectUI : MonoBehaviour
     {
@@ -120,11 +117,7 @@ namespace BasicMultiplayer.Core
         }
 
         /// <summary>
-        /// Configures the Unity Transport with IP and Port settings.
-        /// 
-        /// NETWORKING DECISION: We configure transport at runtime to allow
-        /// easy IP/Port changes without rebuilding. In production, you'd
-        /// likely use a matchmaking service or relay.
+        /// Updates the UnityTransport configuration with the specified connection details.
         /// </summary>
         private void ConfigureTransport()
         {

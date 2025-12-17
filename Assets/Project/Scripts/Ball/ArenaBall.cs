@@ -6,20 +6,10 @@ using UnityEngine;
 namespace BasicMultiplayer.Ball
 {
     /// <summary>
-    /// Networked physics ball that syncs across all clients.
-    /// 
-    /// NETWORKING ARCHITECTURE - SERVER AUTHORITATIVE PHYSICS:
-    /// 
-    /// The ball uses SERVER authority (not client authority like players) because:
-    /// 1. Both players interact with it - no single "owner"
-    /// 2. Scoring must be authoritative - can't trust clients
-    /// 3. Physics consistency - server is the single source of truth
-    /// 
-    /// HOW IT WORKS:
-    /// - Server runs physics simulation and owns the NetworkObject
-    /// - NetworkRigidbody syncs position/velocity to clients
-    /// - Clients see interpolated movement (smooth visuals)
-    /// - Collision detection for goals happens ONLY on server
+    /// Server-authoritative physics ball. 
+    /// Handles synchronized movement and collision detection. Since this is a shared 
+    /// object interacted with by multiple players, logic is restricted to the server 
+    /// to ensure physics consistency and prevent scoring cheats.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(NetworkObject))]
@@ -38,11 +28,8 @@ namespace BasicMultiplayer.Ball
         [SerializeField] private float _trailSpeedThreshold = 5f;
 
         /// <summary>
-        /// Tracks if the ball is currently active/in-play.
-        /// When false, physics are disabled (e.g., during reset).
-        /// 
-        /// NETWORKING DECISION: NetworkVariable ensures all clients
-        /// see the same ball state. Server controls when ball is active.
+        /// Synchronized state tracking whether the ball is currently in-play.
+        /// Disables physics/interactions when false (e.g., during round resets).
         /// </summary>
         public NetworkVariable<bool> IsActive = new NetworkVariable<bool>(
             false,
@@ -120,11 +107,8 @@ namespace BasicMultiplayer.Ball
         }
 
         /// <summary>
-        /// Detects collision with goal zones and players.
-        /// 
-        /// CRITICAL NETWORKING CONCEPT:
-        /// OnTriggerEnter runs on ALL instances (server + clients), but we only
-        /// process the server's collision to prevent duplicate goal scoring.
+        /// Detects goal and player collisions. 
+        /// Only processed on the server instance to maintain authoritative state.
         /// </summary>
         private void OnTriggerEnter(Collider other)
         {
@@ -235,12 +219,7 @@ namespace BasicMultiplayer.Ball
         }
 
         /// <summary>
-        /// Triggers goal visual effects on all clients.
-        /// 
-        /// NETWORKING DECISION: Use ClientRpc for visual effects because:
-        /// - Effects are cosmetic (don't affect game state)
-        /// - All clients should see them simultaneously
-        /// - Server broadcasts to ensure sync
+        /// Broadcasts goal-related visual and audio effects to all connected clients.
         /// </summary>
         [ClientRpc]
         private void PlayGoalEffectClientRpc(int scoringPlayer)

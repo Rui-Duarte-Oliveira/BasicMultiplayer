@@ -6,22 +6,12 @@ using UnityEngine.InputSystem;
 namespace BasicMultiplayer.Player
 {
     /// <summary>
-    /// Network controller for player input and synchronization.
+    /// Manages player input and network sync.
     /// 
-    /// NETWORKING ARCHITECTURE:
-    /// This class uses OWNER-AUTHORITATIVE movement via NetworkTransform.
-    /// 
-    /// Why Owner-Authoritative for this project:
-    /// 1. Responsiveness - Player feels immediate control
-    /// 2. Simplicity - No need for server reconciliation or prediction
-    /// 3. Portfolio Focus - Demonstrates understanding of the tradeoff
-    /// 
-    /// TRADEOFF ACKNOWLEDGED: Client/Owner authority means a cheating client could
-    /// teleport. For a production game, use server authority
-    /// with client-side prediction. This basic project prioritizes demonstrating
-    /// networking concepts clearly.
-    /// 
-    /// The actual movement physics are delegated to PlayerMotor (separation of concerns).
+    /// USAGE NOTE:
+    /// Relies on Owner Authority to avoid the overhead of server-side prediction/reconciliation.
+    /// While this provides the best "game feel" for this scope, it trusts the client position, 
+    /// making it vulnerable to teleport cheats.
     /// </summary>
     [RequireComponent(typeof(PlayerMotor))]
     [RequireComponent(typeof(NetworkObject))]
@@ -38,12 +28,8 @@ namespace BasicMultiplayer.Player
         [SerializeField] private Transform[] _spawnPoints;
 
         /// <summary>
-        /// Player index (0 or 1) assigned by the server.
-        /// Used for spawn positions and team colors.
-        /// 
-        /// NETWORKING DECISION: Using NetworkVariable ensures all clients
-        /// see the correct player index, even late joiners. The server
-        /// sets this value, clients can only read it.
+        /// Networked player index (0/1). 
+        /// Driven by the server to ensure consistent team assignment across all clients.
         /// </summary>
         public NetworkVariable<int> PlayerIndex = new NetworkVariable<int>(
             -1, // Default: unassigned
@@ -71,12 +57,8 @@ namespace BasicMultiplayer.Player
         private InputAction _dashAction;
 
         /// <summary>
-        /// Called when the NetworkObject spawns on the network.
-        /// 
-        /// CRITICAL: We use OnNetworkSpawn instead of Awake/Start because:
-        /// 1. NetworkVariables are not initialized until this point
-        /// 2. IsOwner, IsServer, etc. are not valid until spawn
-        /// 3. NetworkObject references aren't ready in Awake
+        /// Entry point for network initialization. Handles logic that requires 
+        /// valid NetworkVariables and ownership status.
         /// </summary>
         public override void OnNetworkSpawn()
         {
@@ -128,14 +110,8 @@ namespace BasicMultiplayer.Player
         }
 
         /// <summary>
-        /// Sets up input for the local player.
-        /// Uses the PlayerInput component with Input Action Asset.
-        /// 
-        /// SETUP REQUIRED:
-        /// 1. Add PlayerInput component to Player prefab
-        /// 2. Assign PlayerInputActions asset to "Actions" field
-        /// 3. Set "Default Map" to "Player"
-        /// 4. Set "Behavior" to "Invoke Unity Events" or "Invoke C Sharp Events"
+        /// Configures input handling for the local player instance.
+        /// Expects a PlayerInput component configured for C# events.
         /// </summary>
         private void SetupInput()
         {
@@ -236,14 +212,9 @@ namespace BasicMultiplayer.Player
         }
 
         /// <summary>
-        /// Detects collisions with the ball and sends force to server.
-        /// 
-        /// NETWORKING CHALLENGE: In multiplayer, the ball uses server-authoritative physics.
-        /// When a CLIENT player hits the ball, the collision happens locally but the ball's
-        /// authoritative Rigidbody is on the SERVER. This causes weak/delayed forces.
-        /// 
-        /// SOLUTION: Detect collision on client, calculate force, send to server via RPC.
-        /// Server applies the force authoritatively, ensuring consistent physics.
+        /// Handles collision logic for the server-authoritative ball. 
+        /// Since clients cannot directly affect the ball's velocity, this sends the 
+        /// calculated impact force to the server to ensure synchronized physics.
         /// </summary>
         private void OnCollisionEnter(Collision collision)
         {
@@ -296,12 +267,8 @@ namespace BasicMultiplayer.Player
         }
 
         /// <summary>
-        /// Notifies the server (and other clients) that this player dashed.
-        /// 
-        /// NETWORKING DECISION: We use an RPC here instead of a NetworkVariable because:
-        /// 1. Dash is an EVENT, not persistent state
-        /// 2. We only need to trigger visual/audio effects
-        /// 3. RPCs are more efficient for one-time events
+        /// Triggers dash effects across the network. 
+        /// Using an RPC as this is a transient event rather than persistent state.
         /// </summary>
         [ServerRpc]
         private void NotifyDashServerRpc(Vector3 direction)
