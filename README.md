@@ -7,7 +7,7 @@ The primary objective of this project was to explore server-authoritative archit
 > **Status:** 🚧 Work in Progress 🚧  
 > This project is currently in active development. Features may be incomplete, and bugs are expected.
 
-## 🎮 Project Overview
+## Project Overview
 
 Two players compete in an enclosed arena to score goals against each other. The game utilizes a server-authoritative architecture where the server manages the game state, ball physics, and score validation to prevent cheating and ensure synchronization.
 
@@ -18,14 +18,14 @@ Two players compete in an enclosed arena to score goals against each other. The 
 * **Input System:** Integrated with the new Unity Input System for responsive player control.
 * **Dev Tools:** Configured with **ParrelSync** to easily test Host/Client interactions on a single machine.
 
-## 📅 Roadmap (To-Do)
+## Roadmap (To-Do)
 
 * [ ] **UI Overhaul:** Replace the temporary `OnGUI` debug display with a proper Unity UI (Canvas) system for the Main Menu, Scoreboard, and Game Over screens.
 * [ ] **Physics Improvements:** Implement client-side prediction and reconciliation to smooth out ball movement over higher latency.
 * [ ] **Match Timer:** Finalize the visual representation of the round timer.
 * [ ] **Visual Polish:** Add particle effects for goals and better player visual feedback.
 
-## 🐛 Known Issues
+## Known Issues
 
 * **Connection Jitter:** Player movement may jitter slightly on unstable connections (reconciliation pending).
 * **State Reset:** Occasionally, the ball position may not reset perfectly if the round ends during a high-velocity collision.
